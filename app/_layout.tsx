@@ -1,37 +1,48 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+import { View, Text } from 'react-native'
+import React from 'react'
+import { Stack } from 'expo-router'
+import { useFonts } from "expo-font";
+const _layout = () => {
+  const [fontsLoaded, error] = useFonts({
+    "Baumans-Regular": require("../assets/fonts/Baumans-Regular.ttf"),
+    "InriaSans-Regular": require("../assets/fonts/InriaSans-Regular.ttf"),
+    "Inter-Bold": require("../assets/fonts/Inter-Bold.ttf"),
+    "Inika": require("../assets/fonts/Inika.ttf"),
+    "Inika-Bold": require("../assets/fonts/Inika-Bold.ttf"),
+    "Abel-Regular": require("../assets/fonts/Abel-Regular.ttf"),
+    "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
+    "Roboto-Medium": require("../assets/fonts/Roboto-Medium.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
+  if (!fontsLoaded && !error) {
     return null;
   }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
+  <Stack>
+    {/* <Stack.Screen name="index" options={
+        {
+            headerShown: false
+        }
+    } />
+    <Stack.Screen name="rigister/index" options={{title:"Register"}} />
+    <Stack.Screen name="leaderboard" options={{
+                  headerShown: false
+    }
+    } />
+
+<Stack.Screen name="chat" options={{
+                  headerShown: false
+    }
+    } />
+    <Stack.Screen name="home" options={{
+                  headerShown: false
+    }
+    } /> */}
+    <Stack.Screen  name="(tabs)" options={{
+      headerShown: false
+    }}/>
+  </Stack>
+  )
 }
+
+export default _layout
