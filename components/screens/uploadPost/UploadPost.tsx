@@ -4,6 +4,11 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 
+interface FormValues {
+  title: string;
+  desc: string;
+  image: string;
+}
 const validationSchema = Yup.object().shape({
   title: Yup.string()
     .max(100, 'Title must not be longer than 100 characters')
@@ -14,7 +19,8 @@ const validationSchema = Yup.object().shape({
   image: Yup.string().required('Image is required'),
 });
 
-const FormScreen = () => {
+const FormScreen = ({uploadPost}:any) => {
+  const [imageUrl, setImageUrl] = React.useState<string>('');
   const pickImage = async (setFieldValue:any) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -24,16 +30,20 @@ const FormScreen = () => {
     });
 
     if (!result.canceled) {
+      console.log(result.assets[0].uri);
       setFieldValue('image',(result.assets[0].uri).toString());
-    }
+      setImageUrl(result.assets[0].uri);
+        }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Formik
         initialValues={{ title: '', desc: '', image: '' }}
         validationSchema={validationSchema}
-        onSubmit={values => console.log(values)}
+        onSubmit={(values: FormValues) => {
+          uploadPost({ title: values.title, desc: values.desc, imageurl: values.image });
+        }}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <View style={styles.formContainer}>
@@ -70,7 +80,7 @@ const FormScreen = () => {
           </View>
         )}
       </Formik>
-    </View>
+    </ScrollView>
   );
 };
 

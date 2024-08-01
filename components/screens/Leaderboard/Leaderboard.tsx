@@ -3,7 +3,7 @@ import { StyleSheet, View, Text } from "react-native";
 import { Image } from "expo-image";
 import { Color, Border, FontFamily, FontSize } from "../../../GlobalStyles";
 
-const Frame7 = () => {
+const LeaderBoard = () => {
   return (
     <View style={styles.view}>
       <View style={styles.maskWrapper}>
@@ -707,4 +707,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Frame7;
+export default LeaderBoard;

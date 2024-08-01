@@ -2,6 +2,7 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
 import { useFonts } from "expo-font";
+import { FirebaseProvider } from './context/techDateContext';
 const _layout = () => {
   const [fontsLoaded, error] = useFonts({
     "Baumans-Regular": require("../assets/fonts/Baumans-Regular.ttf"),
@@ -18,13 +19,14 @@ const _layout = () => {
     return null;
   }
   return (
+    <FirebaseProvider>
   <Stack>
     {/* <Stack.Screen name="index" options={
         {
             headerShown: false
         }
     } />
-    <Stack.Screen name="rigister/index" options={{title:"Register"}} />
+  
     <Stack.Screen name="leaderboard" options={{
                   headerShown: false
     }
@@ -38,10 +40,14 @@ const _layout = () => {
                   headerShown: false
     }
     } /> */}
+    {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
+    {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
     <Stack.Screen  name="(tabs)" options={{
       headerShown: false
     }}/>
+       
   </Stack>
+  </FirebaseProvider>
   )
 }
 

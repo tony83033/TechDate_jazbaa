@@ -1,39 +1,22 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity } from 'react-native';
 import { Entypo, FontAwesome, Feather } from '@expo/vector-icons';
+import {useCustomFunction} from "../../../app/context/techDateContext"
+import HomeHeader from './HomeHeader';
+import { useEffect } from 'react';
 import { Link ,router,} from 'expo-router';
-const data = [
-  {
-    id: '1',
-    username: 'john_doe',
-    userProfile: 'https://randomuser.me/api/portraits/men/1.jpg',
-    postDesc: 'Had a great time at the beach today!',
-    postImage: require("../../../assets/helperror.png"),
-    likes: 120,
-    comments: 5,
-  },
-  {
-    id: '2',
-    username: 'jane_doe',
-    userProfile: 'https://randomuser.me/api/portraits/women/1.jpg',
-    postDesc: 'Lovely sunset view from my balcony',
-    postImage: require("../../../assets/helperror.png"),
-    likes: 200,
-    comments: 10,
-  },
-  // Add more posts here
-];
 
-const PostItem = ({ item }:any) => (
+const PostItem = ({ item }: any) => (
   <View style={styles.postContainer}>
+    
     <View style={styles.postHeader}>
-      <Image source={{ uri: item.userProfile }} style={styles.userProfile} />
-      <Text style={styles.username}>{item.username}</Text>
+      <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.userProfile} />
+      <Text style={styles.username}>{item.userId}</Text>
       <Entypo name="dots-three-horizontal" size={24} color="black" style={styles.moreIcon} />
     </View>
-<TouchableOpacity onPress={()=>router.push(`/PostDetails/${item.id}`)}>
-    <Text style={styles.postDesc}>{item.postDesc}</Text>
-    <Image source={ item.postImage } style={styles.postImage} />
+    <TouchableOpacity onPress={() => router.push(`/PostDetails/${item.id}`)}>
+      <Text style={styles.postDesc}>{item.title}</Text>
+      <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
     </TouchableOpacity>
     <View style={styles.postFooter}>
       <View style={styles.actions}>
@@ -41,42 +24,53 @@ const PostItem = ({ item }:any) => (
           <FontAwesome name="heart-o" size={24} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Feather name="message-circle" size={24} color="black" style={styles.actionIcon} />
+          {/* <Feather name="message-circle" size={24} color="black" style={styles.actionIcon} /> */}
+          <FontAwesome name="commenting-o" size={24} style={styles.actionIcon} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Feather name="send" size={24} color="black" style={styles.actionIcon} />
+          {/* <Feather name="send" size={24} color="black" style={styles.actionIcon} /> */}
+          {/* <Entypo name="hand" size={24} color="black" style={styles.actionIcon} /> */}
+          <FontAwesome name="handshake-o" size={24} style={styles.actionIcon} color="black" />
         </TouchableOpacity>
       </View>
       <Text style={styles.likes}>{item.likes} likes</Text>
       <Text style={styles.comments}>{item.comments} comments</Text>
     </View>
-    
-
   </View>
 );
 
-const InstagramFeed = () => (
-  <FlatList
-    data={data}
-    renderItem={({ item }) => 
-  //    <Link href={`/PostDetails/${item.id}`} >
-    <PostItem item={item} />
- //   </Link>
-  }
-    keyExtractor={item => item.id}
-    style={styles.feed}
-  />
-);
+const InstagramFeed = () => {
+  const { FetchPosts, posts } = useCustomFunction();
+
+  useEffect(() => {
+    FetchPosts();
+  }, []);
+
+  return (
+    <View>
+    <HomeHeader></HomeHeader>
+    <FlatList
+      data={posts}
+      renderItem={({ item }) => <PostItem item={item} />}
+      keyExtractor={(item) => item.id}
+      style={styles.feed}
+    />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   feed: {
-    backgroundColor: '#fff',
+    backgroundColor: '#e6e6fa',
   },
   postContainer: {
     borderBottomWidth: 1,
     borderBottomColor: '#e6e6e6',
+    padding:14,
     paddingBottom: 10,
     marginBottom: 10,
+   // borderWidth: 1,
+    borderColor: "black",
   },
   postHeader: {
     flexDirection: 'row',
@@ -102,6 +96,7 @@ const styles = StyleSheet.create({
   postImage: {
     width: '100%',
     height: 400,
+    borderRadius:10
   },
   postFooter: {
     padding: 10,

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth'
 import {auth} from '../../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Link,router } from 'expo-router';
 import { useState,useEffect } from 'react';
 WebBrowser.maybeCompleteAuthSession();
 const index = () => {
@@ -66,6 +67,7 @@ if(loading){
   </View>
   )
 }else{
+  
   return (
 <SafeAreaView>
  

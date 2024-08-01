@@ -5,6 +5,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ProfileIcon  from '../../components/screens/profile/ProfileIcon'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const TabLayout = () => {
   return (
 <Tabs>
@@ -22,11 +23,11 @@ const TabLayout = () => {
             )
             }
             }/>
-        <Tabs.Screen name="chat/index" options={
+        <Tabs.Screen name="leaderboard/index" options={
             {
-                title:"Chat",
+                title:"Leaderboard",
                 tabBarIcon:({focused})=>(
-                    <Ionicons name="chatbubble-ellipses-sharp" size={24} color="black" />
+                    <MaterialIcons name="leaderboard" size={24} color="black" />
                 )
 
             }
@@ -39,6 +40,10 @@ const TabLayout = () => {
             )
             }}/>
                 <Tabs.Screen name="PostDetails/[id]" options={
+        {
+            href:null
+            }}/>
+            <Tabs.Screen name="chat/index" options={
         {
             href:null
             }}/>
