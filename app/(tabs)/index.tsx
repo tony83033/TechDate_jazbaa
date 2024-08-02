@@ -12,22 +12,45 @@ import {
 } from 'firebase/auth'
 import {auth} from '../../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Link,router } from 'expo-router';
+import { Link,router,Redirect  } from 'expo-router';
 import { useState,useEffect } from 'react';
+import { useCustomFunction } from '../context/techDateContext';
 WebBrowser.maybeCompleteAuthSession();
+
 const index = () => {
-  
 
+    const { userInfo, setUserInfo } = useCustomFunction();
   
-  return (
-<SafeAreaView>
- 
-  <HomeScreen/>
- 
-</SafeAreaView>
-  )
+  const [localUser,setLocalUser] = useState<boolean>(false)
+  const checkLocalUser = async () => {
+  
+    try {
+      const userJSON = await AsyncStorage.getItem('@user');
+      if(userJSON!==null){
+        const userData = userJSON ? JSON.parse(userJSON) : null;
+      console.log("Local storage", userData);
+      //setUserInfo(userData);
+      setLocalUser(true)
+      }
+      
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+    //  setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkLocalUser();
+  }, []);
+
+    return (
+        <SafeAreaView>
+            {userInfo? <HomeScreen /> : <Redirect href="/rigister" />}
+        </SafeAreaView>
+    )
+
 }
-
 
 export default index
 

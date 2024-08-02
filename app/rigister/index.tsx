@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter,Redirect  } from 'expo-router';
 import Profile from '@/components/screens/profile/Profile';
 import Frame from '@/components/screens/auth';
 import * as Google from "expo-auth-session/providers/google";
@@ -59,24 +59,20 @@ export default function Register() {
         setUserInfo(user);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
       } else {
-        console.log("Not logged in");
+        console.log("Not logged in from rigister");
         setUserInfo(null);
       }
     });
-    return () => unsub();
+    // return () => unsub();
   }, []);
-
-  if (userInfo) {
-    console.log("User logged in, sending to profile");
-    router.push("/(tabs)/Profile");
-    return null;
-  } else {
+//    router.push("/(tabs)/Profile");
+  
     return (
       <SafeAreaView>
-        <Frame promptAsync={promptAsync}></Frame>
+       { userInfo? <Redirect href="/(tabs)/Profile" />:<Frame promptAsync={promptAsync}></Frame>}
       </SafeAreaView>
     );
-  }
+  
 }
 
 const styles = StyleSheet.create({});

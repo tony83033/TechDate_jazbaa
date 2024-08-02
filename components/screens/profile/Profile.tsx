@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Dimensions } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Dimensions,Modal } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,6 +11,7 @@ const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernete
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
 const ProfileHeader = ({ userInfo, onSignOut }:any) => (
+  
   <View style={styles.profileHeader}>
     <Image
       style={styles.profileImage}
@@ -59,7 +60,7 @@ const InterestsList = ({ interests }:any) => (
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState<any>();
-
+  const [skillModal,setSkillModal] = useState<boolean>(false)
   useEffect(() => {
     getCurrentUser();
   }, []);
@@ -88,11 +89,13 @@ const Profile = () => {
   const handleAddSkill = () => {
     // Implement add skill functionality
     console.log("Add skill pressed");
+    setSkillModal(true)
   };
 
   const handleAddInterest = () => {
     // Implement add interest functionality
     console.log("Add interest pressed");
+  
   };
 
   return (
@@ -101,6 +104,24 @@ const Profile = () => {
         <ProfileHeader userInfo={userInfo} onSignOut={userSignOut} />
         <Section title="Skills" onAddPress={handleAddSkill}>
           <SkillsList skills={skills} />
+         {/* Start Modal skill */}
+         <Modal
+        animationType="slide"
+        transparent={true}
+        visible={skillModal}
+        onRequestClose={() => {
+          console.warn("closed");
+        }}
+        >
+          <View >
+            <View >
+            <Text >GeeksforGeeks</Text>
+            <TouchableOpacity onPress={()=>{setSkillModal(!skillModal)}}><Text>close</Text></TouchableOpacity>
+           
+            </View>
+          </View>
+        </Modal>
+{/* End Modal skill */}
         </Section>
         <Section title="Interests" onAddPress={handleAddInterest}>
           <InterestsList interests={interests} />
