@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Dimensions,Modal } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Dimensions,Modal,TextInput } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signOut, getAuth } from "firebase/auth";
 import { auth } from "../../../firebaseConfig";
 import { Ionicons } from '@expo/vector-icons';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
 const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernetes"];
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
@@ -61,6 +61,10 @@ const InterestsList = ({ interests }:any) => (
 const Profile = () => {
   const [userInfo, setUserInfo] = useState<any>();
   const [skillModal,setSkillModal] = useState<boolean>(false)
+  const [interestModal,setInterestModal] = useState<boolean>(false)
+  const [newSkill, setNewSkill] = useState<string>('');
+  const [newInterest, setNewInterest] = useState<string>('');
+
   useEffect(() => {
     getCurrentUser();
   }, []);
@@ -95,6 +99,7 @@ const Profile = () => {
   const handleAddInterest = () => {
     // Implement add interest functionality
     console.log("Add interest pressed");
+    setInterestModal(true)
   
   };
 
@@ -106,25 +111,85 @@ const Profile = () => {
           <SkillsList skills={skills} />
          {/* Start Modal skill */}
          <Modal
-        animationType="slide"
-        transparent={true}
-        visible={skillModal}
-        onRequestClose={() => {
-          console.warn("closed");
+  animationType="slide"
+  transparent={true}
+  visible={skillModal}
+  onRequestClose={() => setSkillModal(false)}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => setSkillModal(false)}
+      >
+        {/* <Ionicons name="close" size={24} color="red" /> */}
+        <AntDesign name="closecircle" size={24} color="#E84342" />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Add New Skill</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setNewSkill}
+        value={newSkill}
+        placeholder="Enter new skill"
+      />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => {
+          // Add the new skill to the skills array
+          // This is where you'd typically update your backend or state management
+          console.log('New skill added:', newSkill);
+          setNewSkill('');
+          setSkillModal(false);
         }}
-        >
-          <View >
-            <View >
-            <Text >GeeksforGeeks</Text>
-            <TouchableOpacity onPress={()=>{setSkillModal(!skillModal)}}><Text>close</Text></TouchableOpacity>
-           
-            </View>
-          </View>
-        </Modal>
+      >
+        <Text style={styles.addButtonText}>Add Skill</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
 {/* End Modal skill */}
         </Section>
         <Section title="Interests" onAddPress={handleAddInterest}>
           <InterestsList interests={interests} />
+          {/* Start Modal interest */}
+          <Modal
+  animationType="slide"
+  transparent={true}
+  visible={interestModal}
+  onRequestClose={() => setInterestModal(false)}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => setInterestModal(false)}
+      >
+        {/* <Ionicons name="close" size={24} color="red" /> */}
+        <AntDesign name="closecircle" size={24} color="#E84342" />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Add New Interest</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setNewInterest}
+        value={newInterest}
+        placeholder="Enter new Interest"
+      />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => {
+          // Add the new skill to the skills array
+          // This is where you'd typically update your backend or state management
+          console.log('New skill added:', newSkill);
+          setNewInterest('')
+          setInterestModal(false);
+        }}
+      >
+        <Text style={styles.addButtonText}>Add Interest</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+          {/* End Modal interest */}
         </Section>
       </ScrollView>
     </SafeAreaView>
@@ -212,6 +277,61 @@ const styles = StyleSheet.create({
   interestText: {
     color: "black",
     fontSize: 14,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '80%',
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  modalTitle: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  input: {
+    height: 40,
+    width: '100%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  addButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    padding: 10,
+    paddingRight: 20,
+    paddingLeft: 20,
+    elevation: 2,
+    
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
