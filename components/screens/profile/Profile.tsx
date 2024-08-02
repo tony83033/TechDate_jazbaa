@@ -79,7 +79,7 @@ const Profile = () => {
       await signOut(auth);
       await AsyncStorage.setItem('@user', "");
       console.log("User signed out successfully");
-      router.push("/");
+      router.push("rigister");
     } catch (error) {
       console.error("Error signing out:", error);
     }

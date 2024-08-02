@@ -1,8 +1,25 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+
 import { Stack } from 'expo-router'
 import { useFonts } from "expo-font";
 import { FirebaseProvider } from './context/techDateContext';
+import { FirebaseAuthProvider } from './context/techDateAuthContext';
+// ================================================
+import { StyleSheet, Text, View,SafeAreaView,Image,ActivityIndicator } from 'react-native'
+import React from 'react'
+
+import Frame from '@/components/screens/auth';
+import HomeScreen from '@/components/screens/home/Home';
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  onAuthStateChanged
+} from 'firebase/auth'
+import {auth} from '../firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Link,router } from 'expo-router';
+import { useState,useEffect } from 'react';
 const _layout = () => {
   const [fontsLoaded, error] = useFonts({
     "Baumans-Regular": require("../assets/fonts/Baumans-Regular.ttf"),
@@ -18,8 +35,12 @@ const _layout = () => {
   if (!fontsLoaded && !error) {
     return null;
   }
+
+  // =========================Login of login and home screen===========
+
   return (
     <FirebaseProvider>
+    {/* <FirebaseAuthProvider> */}
   <Stack>
     {/* <Stack.Screen name="index" options={
         {
@@ -42,11 +63,14 @@ const _layout = () => {
     } /> */}
     {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
     {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
+    <Stack.Screen name="rigister/index" options={{title:"Register"}} />
     <Stack.Screen  name="(tabs)" options={{
       headerShown: false
     }}/>
+    
        
   </Stack>
+  {/* </FirebaseAuthProvider> */}
   </FirebaseProvider>
   )
 }

@@ -16,67 +16,18 @@ import { Link,router } from 'expo-router';
 import { useState,useEffect } from 'react';
 WebBrowser.maybeCompleteAuthSession();
 const index = () => {
-  const [userInfo,setUserInfo] = useState("");
-  const [loading,setLoading] = useState(false);
-  const [request,response,promptAsync] = Google.useAuthRequest({
-    androidClientId:"627954942332-f58195qb3bqllgl3auuafjs02vt1ggd1.apps.googleusercontent.com"
-  })
+  
 
-  const checkLocalUser = async()=>{
-    setLoading(true)
-    try{
-      const userJSON = await AsyncStorage.getItem('@user')
-      const userData = userJSON? JSON.parse(userJSON):null
-      console.log("Local storage",userData)
-      setUserInfo(userData)
-    }catch(e:any){
-      alert(e.message)
-    }finally{
-      setLoading(false)
-    }
-    
-  }
-
-useEffect(()=>{
-  if(response?.type === 'success'){
-    const {id_token} = response.params
-    const credential = GoogleAuthProvider.credential(id_token)
-    signInWithCredential(auth,credential)
-  }
-},[response])
-
-useEffect(()=>{
-  checkLocalUser()
-  const unsub = onAuthStateChanged(auth, async(user)=>{
-    if(user){
-      console.log(JSON.stringify(user,null,2))
-      setUserInfo(JSON.stringify(user))
-      await AsyncStorage.setItem('@user',JSON.stringify(user))
-    }else{
-      console.log("Not logged in")
-      setUserInfo("")
-    }
-    return () => unsub();
-  }) 
-},[])
-if(loading){
-  return (
-    <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
-    <ActivityIndicator size="large"
-  />
-  </View>
-  )
-}else{
   
   return (
 <SafeAreaView>
  
-  {userInfo ? <HomeScreen/>:<Frame promptAsync={promptAsync} />}
+  <HomeScreen/>
  
 </SafeAreaView>
   )
 }
-}
+
 
 export default index
 
