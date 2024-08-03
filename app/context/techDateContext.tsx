@@ -14,6 +14,7 @@ interface FirebaseContextType {
   UploadProfilePhoto: ({imageurl}:{imageurl:string}) => void;
   addSkillInDb: ({newSkill}:{newSkill:any}) => void;
   addInterestINDb: ({newInterest}:{newInterest:any}) => void;
+  editBio: ({newBio}:{newBio:any}) => void;
 }
 
 const firebaseContext = createContext<FirebaseContextType | null>(null);
@@ -278,8 +279,37 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
       alert("Something went wrong, please try again");
     }
   }
+
+  const editBio = async ({newBio}:{newBio:any})=>{
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('No user is currently logged in');
+    }
+  try {
+      // Reference to the 'UsersProfile' node
+      const usersProfileRef = dbRef(db, 'UsersProfile');
+  
+      // Check if a document with the current userId exists
+      const snapshot = await get(child(usersProfileRef, currentUser.uid));
+  
+      if (snapshot.exists()) {
+        // Document exists, update the imageUrl
+        await update(child(usersProfileRef, currentUser.uid), {
+          bio: newBio,
+          updatedAt: new Date().toISOString(),
+        });
+  
+        console.log('Profile Photo has been successfully updated:', );
+        alert("Bio updated successfully");
+  } 
+}catch (error:any) {
+      console.error("Error adding new Interest:", error);
+      alert("Something went wrong, please try again");
+}
+  
+  }
   return (
-    <firebaseContext.Provider value={{ UploadPost, FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb }}>
+    <firebaseContext.Provider value={{ UploadPost, FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb,editBio }}>
       {children}
     </firebaseContext.Provider>
   );

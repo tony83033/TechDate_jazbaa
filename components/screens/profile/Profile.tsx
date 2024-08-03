@@ -13,6 +13,7 @@ import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import { useCustomFunction } from '@/app/context/techDateContext';
 import { getDatabase, ref, onValue } from "firebase/database";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernetes"];
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
@@ -20,15 +21,53 @@ const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web
 const ProfileHeader = ({ userInfo, onSignOut }:any) => {
   const [profileModal,setProfileModal] = useState<boolean>(false)
   const [profileUri,setProfileUri] = useState<any>('')
-
+  const [imageUrl, setImageUrl] = useState('');
+  const [bio, setBio] = useState('');
+  const [bioModal,setBioModal] = useState<boolean>(false)
+  const [newBio,setNewBio] = useState<any>('')
   const allFunctions  = useCustomFunction()
   console.log("Insider Upload")
   console.log(allFunctions)
-  const {UploadProfilePhoto} = allFunctions;
+  const {UploadProfilePhoto,editBio} = allFunctions;
 
   const ProfilePhotoSchema = Yup.object().shape({
     photo: Yup.string().required('A photo is required'),
   });
+
+  useEffect(() => {
+    if (userInfo) {
+      fetchImageUrl();
+      fetchBio();
+    }
+  }, [userInfo]);
+  const fetchImageUrl = () => {
+    const db = getDatabase();
+    const imageUrlRef = ref(db, `UsersProfile/${userInfo.uid}/imageUrl`);
+    
+    onValue(imageUrlRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setImageUrl(data);
+      } else {
+        setImageUrl('');
+      }
+    });
+  };
+
+  const fetchBio = () => {
+    const db = getDatabase();
+    const bio = ref(db, `UsersProfile/${userInfo.uid}/bio`);
+    
+    onValue(bio, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setBio(data);
+      } else {
+        setBio('');
+      }
+    });
+  };
+
 
   const pickImage = async (setFieldValue: any) => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -61,16 +100,58 @@ const ProfileHeader = ({ userInfo, onSignOut }:any) => {
   <View style={styles.profileHeader}>
     <TouchableOpacity onPress={()=>handleAddPhoto()}>
     <Image
-      style={styles.profileImage}
-      contentFit="cover"
-      source={require("../../../assets/sumit.jpg")}
-    />
+          style={styles.profileImage}
+          contentFit="cover"
+          source={imageUrl ? { uri: imageUrl } : require("../../../assets/userIcon.png")}
+        />
     </TouchableOpacity>
     <Text style={styles.userName}>{userInfo?.displayName || "User"}</Text>
-    <Text style={styles.userBio}>Love to solve Error's</Text>
+    <TouchableOpacity onPress={() => setBioModal(true)}>
+    <Text style={styles.userBio}>{bio}   <MaterialIcons name="edit" size={24} color="black" /> </Text>
+    </TouchableOpacity>
     <TouchableOpacity style={styles.signOutButton} onPress={onSignOut}>
       <Text style={styles.signOutText}>Log Out</Text>
     </TouchableOpacity>
+    {/* start Bio modal */}
+    <Modal
+  animationType="slide"
+  transparent={true}
+  visible={bioModal}
+  onRequestClose={() => setBioModal(false)}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => setBioModal(false)}
+      >
+        {/* <Ionicons name="close" size={24} color="red" /> */}
+        <AntDesign name="closecircle" size={24} color="#E84342" />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Add New Bio</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setNewBio}
+        value={newBio}
+        placeholder="Enter new Bio"
+      />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => {
+          // Add the new skill to the skills array
+          // This is where you'd typically update your backend or state management
+          console.log('New skill added:', newBio);
+          setNewBio('');
+          setBioModal(false);
+          editBio({newBio})
+        }}
+      >
+        <Text style={styles.addButtonText}>Add Bio</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+    {/* End Bio madal */}
 
   {/* Start ProfilePhoto modal */}
   <Modal
