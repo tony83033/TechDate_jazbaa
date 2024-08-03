@@ -10,7 +10,8 @@ const TabLayout = () => {
   return (
 <Tabs>
     <Tabs.Screen name="index" options={{
-        title:"Home",
+      //  title:"Home",
+      headerShown:false,
         tabBarIcon:({focused})=>(
             <Entypo name="home" size={24} color="black" />
     )
@@ -18,6 +19,7 @@ const TabLayout = () => {
         <Tabs.Screen name="Upload/index" options={
             {
                 title:"Post",
+                headerTitleAlign: 'center',
                 tabBarIcon:({focused})=>(
 <AntDesign name="pluscircle" size={24} color="black" />
             )
@@ -26,6 +28,7 @@ const TabLayout = () => {
         <Tabs.Screen name="leaderboard/index" options={
             {
                 title:"Leaderboard",
+                //headerTitleAlign: 'center',
                 tabBarIcon:({focused})=>(
                     <MaterialIcons name="leaderboard" size={24} color="black" />
                 )
@@ -35,6 +38,8 @@ const TabLayout = () => {
     <Tabs.Screen name="Profile/index" options={
         {
             title:"Profile",
+            //headerShown:false,
+            headerTitleAlign: 'center',
             tabBarIcon:({focused})=>(
                 <ProfileIcon></ProfileIcon>
             )
@@ -45,6 +50,15 @@ const TabLayout = () => {
             }}/>
             <Tabs.Screen name="chat/index" options={
         {
+            href:null
+            }}/>
+
+<Tabs.Screen name="otherUserProfile/[id]" options={
+
+        {
+           // headerShown:false,
+           title:"Profile",
+           headerTitleAlign: 'center',
             href:null
             }}/>
 </Tabs>

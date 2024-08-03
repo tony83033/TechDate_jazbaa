@@ -3,7 +3,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { db, auth } from '@/firebaseConfig';
-import { push, set, ref as dbRef, onValue,update, child,get } from 'firebase/database';
+import { push, set, ref as dbRef, onValue,update, child,get,getDatabase } from 'firebase/database';
 
 interface FirebaseContextType {
   UploadPost: ({ title, desc, imageurl }: { title: string; desc: string; imageurl: string }) => void;
@@ -65,13 +65,25 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
       }
 
       try {
+        //get curent user Profile photo
+        
+        const imagedb = getDatabase();
+        const imageUrlRef =  dbRef(imagedb, `UsersProfile/${currentUser.uid}/imageUrl`);
+    
+        const snapshot = await get(imageUrlRef);
+        const userProfileImageurl = await snapshot.val();
+        console.log(userProfileImageurl);
+        // sage in db
         const newPostRef = push(dbRef(db, 'posts'));
         await set(newPostRef, {
           title,
           desc,
           imageUrl: downloadURL,
+          userProfileImageUrl: userProfileImageurl,
+          userName: currentUser?.displayName || '', 
           likeCount: 0,
           commentCount: 0,
+          postId: newPostRef.key,
           userId: currentUser.uid,
           createdAt: new Date().toISOString(),
         });
@@ -80,11 +92,11 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
         alert("Post uploaded successfully");
 
       } catch (error) {
-        alert("Something went wrong, please restart the app");
+        alert("Something went wrong, please restart the app 1" + error);
       }
 
     } catch (error) {
-      alert("Something went wrong, please restart the app");
+      alert("Something went wrong, please restart the app 2"+ error);
     }
   };
 

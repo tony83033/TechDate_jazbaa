@@ -5,16 +5,22 @@ import {useCustomFunction} from "../../../app/context/techDateContext"
 import HomeHeader from './HomeHeader';
 import { useEffect } from 'react';
 import { Link ,router,} from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PostItem = ({ item }: any) => (
   <View style={styles.postContainer}>
     
     <View style={styles.postHeader}>
-      <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.userProfile} />
-      <Text style={styles.username}>{item.userId}</Text>
+      <TouchableOpacity onPress={() => router.push(`/otherUserProfile/${item.userId}`)}>
+      <Image source={{ uri: item.userProfileImageUrl }} style={styles.userProfile} />
+      </TouchableOpacity>
+      <Text style={styles.username}>{item.userName}</Text>
       <Entypo name="dots-three-horizontal" size={24} color="black" style={styles.moreIcon} />
     </View>
-    <TouchableOpacity onPress={() => router.push(`/PostDetails/${item.id}`)}>
+    <TouchableOpacity onPress={() => router.push({
+      pathname: "/PostDetails/[id]",
+      params: { id: item.postId },
+    })}>
       <Text style={styles.postDesc}>{item.title}</Text>
       <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
     </TouchableOpacity>
@@ -47,7 +53,7 @@ const InstagramFeed = () => {
   }, []);
 
   return (
-    <View>
+    <SafeAreaView>
     <HomeHeader></HomeHeader>
     <FlatList
       data={posts}
@@ -55,7 +61,7 @@ const InstagramFeed = () => {
       keyExtractor={(item) => item.id}
       style={styles.feed}
     />
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -14,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useCustomFunction } from '@/app/context/techDateContext';
 import { getDatabase, ref, onValue } from "firebase/database";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Padding } from "@/GlobalStyles";
 const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernetes"];
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
@@ -446,7 +447,8 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#e6e6fa",
-    height: Dimensions.get("window").height
+    height: Dimensions.get("window").height,
+    padding: 20,
   },
   profileHeader: {
     alignItems: "center",
