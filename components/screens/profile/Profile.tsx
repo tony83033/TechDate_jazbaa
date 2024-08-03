@@ -7,24 +7,128 @@ import { signOut, getAuth } from "firebase/auth";
 import { auth } from "../../../firebaseConfig";
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { setPriority } from "firebase/database";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import * as ImagePicker from 'expo-image-picker';
+import { useCustomFunction } from '@/app/context/techDateContext';
 const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernetes"];
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
-const ProfileHeader = ({ userInfo, onSignOut }:any) => (
+
+const ProfileHeader = ({ userInfo, onSignOut }:any) => {
+  const [profileModal,setProfileModal] = useState<boolean>(false)
+  const [profileUri,setProfileUri] = useState<any>('')
+
+  const allFunctions  = useCustomFunction()
+  console.log("Insider Upload")
+  console.log(allFunctions)
+  const {UploadProfilePhoto} = allFunctions;
+
+  const ProfilePhotoSchema = Yup.object().shape({
+    photo: Yup.string().required('A photo is required'),
+  });
+
+  const pickImage = async (setFieldValue: any) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      setFieldValue('photo', result.assets[0].uri);
+      setProfileUri(result.assets[0].uri)
+      console.log(result.assets[0].uri)
+      console.log('Photo',profileUri)
+    }
+  };
+
+  
+  const handleAddPhoto = () => {
+    // Implement add interest functionality
+    console.log("Add interest pressed");
+    setProfileModal(true)
+  
+  };
+
+  // upload to firestor
+  
+  return (
   
   <View style={styles.profileHeader}>
+    <TouchableOpacity onPress={()=>handleAddPhoto()}>
     <Image
       style={styles.profileImage}
       contentFit="cover"
       source={require("../../../assets/sumit.jpg")}
     />
+    </TouchableOpacity>
     <Text style={styles.userName}>{userInfo?.displayName || "User"}</Text>
     <Text style={styles.userBio}>Love to solve Error's</Text>
     <TouchableOpacity style={styles.signOutButton} onPress={onSignOut}>
       <Text style={styles.signOutText}>Log Out</Text>
     </TouchableOpacity>
+
+  {/* Start ProfilePhoto modal */}
+  <Modal
+  animationType="slide"
+  transparent={true}
+  visible={profileModal}
+  onRequestClose={() => setProfileModal(false)}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => setProfileModal(false)}
+      >
+        <AntDesign name="closecircle" size={24} color="#E84342" />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Add New Profile Photo</Text>
+      <Formik
+        initialValues={{ photo: '' }}
+        validationSchema={ProfilePhotoSchema}
+        onSubmit={(values) => {
+          // console.log('New profile photo added:', values.photo);
+          UploadProfilePhoto({imageurl:values.photo});
+          // Here you would typically update your backend or state management
+          setProfileModal(false);
+        }}
+      >
+        {({ handleSubmit, values, setFieldValue, errors }) => (
+          <View>
+            <TouchableOpacity
+              style={styles.imagePicker}
+              onPress={() => pickImage(setFieldValue)}
+            >
+              {values.photo ? (
+                <Image 
+                  source={{ uri: values.photo }} 
+                  style={styles.previewImage} 
+                />
+              ) : (
+                <Text>Select a photo</Text>
+              )}
+            </TouchableOpacity>
+            {errors.photo && <Text style={styles.errorText}>{errors.photo}</Text>}
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => handleSubmit()}
+            >
+              <Text style={styles.addButtonText}>Update Profile Photo</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Formik>
+    </View>
   </View>
-);
+</Modal>
+  {/* End ProfilePhoto modal */}
+  </View>
+  )
+};
 
 const Section = ({ title, children, onAddPress }:any) => (
   <View style={styles.section}>
@@ -64,6 +168,10 @@ const Profile = () => {
   const [interestModal,setInterestModal] = useState<boolean>(false)
   const [newSkill, setNewSkill] = useState<string>('');
   const [newInterest, setNewInterest] = useState<string>('');
+  
+  const [profileModal,setProfileModal] = useState<boolean>(false)
+  const [profileUri,setProfileUri] = useState<any>('')
+
 
   useEffect(() => {
     getCurrentUser();
@@ -103,6 +211,11 @@ const Profile = () => {
   
   };
 
+
+  const allFunctions  = useCustomFunction()
+  console.log("Insider Upload")
+  console.log(allFunctions)
+  const {addSkillInDb,addInterestINDb} = allFunctions;
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -140,6 +253,7 @@ const Profile = () => {
           console.log('New skill added:', newSkill);
           setNewSkill('');
           setSkillModal(false);
+          addSkillInDb({newSkill})
         }}
       >
         <Text style={styles.addButtonText}>Add Skill</Text>
@@ -177,11 +291,12 @@ const Profile = () => {
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
-          // Add the new skill to the skills array
+          // Add the new skill to the Interest array
           // This is where you'd typically update your backend or state management
-          console.log('New skill added:', newSkill);
+          console.log('New skill added:', newInterest);
           setNewInterest('')
           setInterestModal(false);
+          addInterestINDb({newInterest})
         }}
       >
         <Text style={styles.addButtonText}>Add Interest</Text>
@@ -332,6 +447,25 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+
+  imagePicker: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
 

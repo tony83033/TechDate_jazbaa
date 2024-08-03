@@ -9,6 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 function Index() {
   const { userInfo, setUserInfo } = useCustomFunction();
   const router = useRouter();
+
+ 
  
   const checkLocalUser = async () => {
   
@@ -33,6 +35,7 @@ function Index() {
   }, []);
 
 
+  
   return (
     <SafeAreaView>
       {userInfo?       <Profile />: <Redirect href="/rigister" />}
