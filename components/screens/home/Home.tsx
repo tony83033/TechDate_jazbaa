@@ -1,46 +1,113 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity } from 'react-native';
-import { Entypo, FontAwesome, Feather } from '@expo/vector-icons';
-import {useCustomFunction} from "../../../app/context/techDateContext"
-import HomeHeader from './HomeHeader';
-import { useEffect } from 'react';
-import { Link ,router,} from 'expo-router';
+import React, { useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity, Animated } from 'react-native';
+import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCustomFunction } from "../../../app/context/techDateContext";
+import HomeHeader from './HomeHeader';
 
-const PostItem = ({ item }: any) => (
+import { router } from 'expo-router';
+
+// Color scheme and theme
+const colors = {
+  primary: '#4A90E2',
+  secondary: '#50E3C2',
+  background: '#F8F8F8',
+  text: '#333333',
+  lightText: '#777777',
+  white: '#FFFFFF',
+  separator: '#E0E0E0',
+};
+
+// Spacing
+const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+};
+
+// Typography
+const typography = {
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  body: {
+    fontSize: 14,
+  },
+  caption: {
+    fontSize: 12,
+    color: colors.lightText,
+  },
+};
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+
+const ActionButton = ({ icon, count, onPress }:any) => {
+  const scale = new Animated.Value(1);
+
+  const animatePress = () => {
+    Animated.sequence([
+      Animated.timing(scale, { toValue: 0.9, duration: 100, useNativeDriver: true }),
+      Animated.timing(scale, { toValue: 1, duration: 100, useNativeDriver: true })
+    ]).start();
+    onPress();
+  };
+
+  return (
+    <AnimatedTouchable 
+      onPress={animatePress} 
+      style={[styles.actionButton, { transform: [{ scale }] }]}
+    >
+      {icon}
+      {count !== undefined && <Text style={styles.actionText}>{count}</Text>}
+    </AnimatedTouchable>
+  );
+};
+
+const PostItem = ({ item }:any) => (
   <View style={styles.postContainer}>
-    
     <View style={styles.postHeader}>
       <TouchableOpacity onPress={() => router.push(`/otherUserProfile/${item.userId}`)}>
-      <Image source={{ uri: item.userProfileImageUrl }} style={styles.userProfile} />
+        <Image source={{ uri: item.userProfileImageUrl }} style={styles.userProfile} />
       </TouchableOpacity>
-      <Text style={styles.username}>{item.userName}</Text>
-      <Entypo name="dots-three-horizontal" size={24} color="black" style={styles.moreIcon} />
+      <View style={styles.userInfo}>
+        <Text style={styles.usernamestyle}>{item.userName}</Text>
+        <Text style={styles.timestamp}>2 hours ago</Text>
+      </View>
+      <TouchableOpacity style={styles.moreButton}>
+        <Entypo name="dots-three-horizontal" size={20} color={colors.lightText} />
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity onPress={() => router.push({
-      pathname: "/PostDetails/[id]",
-      params: { id: item.postId },
-    })}>
-      <Text style={styles.postDesc}>{item.title}</Text>
+    
+    <TouchableOpacity 
+      onPress={() => router.push({
+        pathname: "/PostDetails/[id]",
+        params: { id: item.postId },
+      })}
+    >
+      <Text style={styles.postTitle}>{item.title}</Text>
       <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
     </TouchableOpacity>
+    
     <View style={styles.postFooter}>
       <View style={styles.actions}>
-        <TouchableOpacity>
-          <FontAwesome name="heart-o" size={24} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          {/* <Feather name="message-circle" size={24} color="black" style={styles.actionIcon} /> */}
-          <FontAwesome name="commenting-o" size={24} style={styles.actionIcon} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          {/* <Feather name="send" size={24} color="black" style={styles.actionIcon} /> */}
-          {/* <Entypo name="hand" size={24} color="black" style={styles.actionIcon} /> */}
-          <FontAwesome name="handshake-o" size={24} style={styles.actionIcon} color="black" />
-        </TouchableOpacity>
+        <ActionButton 
+          icon={<FontAwesome name="heart-o" size={24} color={colors.primary} />}
+          count={item.likes}
+          onPress={() => console.log('Like pressed')}
+        />
+        <ActionButton 
+          icon={<FontAwesome name="comment-o" size={24} color={colors.primary}  />}
+          count={item.comments}
+          onPress={() => console.log('Comment pressed')}
+        />
+        <ActionButton 
+          icon={<FontAwesome name="handshake-o" size={24} color={colors.primary} />}
+          onPress={() => console.log('Handshake pressed')}
+        />
       </View>
-      <Text style={styles.likes}>{item.likes} likes</Text>
-      <Text style={styles.comments}>{item.comments} comments</Text>
     </View>
   </View>
 );
@@ -52,73 +119,92 @@ const InstagramFeed = () => {
     FetchPosts();
   }, []);
 
+  const renderItem = useCallback(({ item }:any) => <PostItem item={item} />, []);
+  const keyExtractor = useCallback((item:any) => item.id, []);
+
   return (
-    <SafeAreaView>
-    <HomeHeader></HomeHeader>
-    <FlatList
-      data={posts}
-      renderItem={({ item }) => <PostItem item={item} />}
-      keyExtractor={(item) => item.id}
-      style={styles.feed}
-    />
+    <SafeAreaView style={styles.container}>
+      <HomeHeader />
+      <FlatList
+        data={posts}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={styles.feedContent}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={5}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  feed: {
-    backgroundColor: '#e6e6fa',
+  container: {
+ //   flex: 1,
+    backgroundColor: colors.background,
+    //paddingTop: 10,
+  },
+  feedContent: {
+    paddingBottom: spacing.xl,
   },
   postContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e6e6e6',
-    padding:14,
-    paddingBottom: 10,
-    marginBottom: 10,
-   // borderWidth: 1,
-    borderColor: "black",
+    backgroundColor: colors.white,
+    marginBottom: spacing.md,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: spacing.md,
   },
   userProfile: {
     width: 40,
     height: 40,
     borderRadius: 20,
   },
-  username: {
-    marginLeft: 10,
-    fontWeight: 'bold',
+  userInfo: {
+    marginLeft: spacing.sm,
     flex: 1,
   },
-  moreIcon: {
-    marginLeft: 'auto',
+  usernamestyle: {
+    
   },
-  postDesc: {
-    padding: 10,
+  timestamp: {
+    ...typography.caption,
+  },
+  moreButton: {
+    padding: spacing.xs,
+  },
+  postTitle: {
+    ...typography.body,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
   },
   postImage: {
     width: '100%',
-    height: 400,
-    borderRadius:10
+    height: 300,
+    resizeMode: 'cover',
   },
   postFooter: {
-    padding: 10,
+    padding: spacing.md,
   },
   actions: {
     flexDirection: 'row',
-    marginBottom: 10,
+    justifyContent: 'space-between',
   },
-  actionIcon: {
-    marginLeft: 15,
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  likes: {
-    fontWeight: 'bold',
-  },
-  comments: {
-    color: 'gray',
+  actionText: {
+    ...typography.caption,
+    marginLeft: spacing.xs,
   },
 });
 
