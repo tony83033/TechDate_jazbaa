@@ -63,7 +63,10 @@ const _layout = () => {
     } /> */}
     {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
     {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
-    <Stack.Screen name="rigister/index" options={{title:"Register"}} />
+    <Stack.Screen name="rigister/index" options={{
+      //title:"Register"
+        headerShown: false
+      }} />
     <Stack.Screen  name="(tabs)" options={{
       headerShown: false
     }}/>

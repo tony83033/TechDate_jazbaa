@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView,View,ActivityIndicator } from 'react-native';
 import Profile from '@/components/screens/profile/Profile';
 import { useRouter, Redirect } from 'expo-router';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -72,7 +72,13 @@ function Index() {
   }, [userInfo]);
 
   if (userInfo && !profileChecked) {
-    return null; // or a loading indicator
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", zIndex: 20 }}>
+      <ActivityIndicator
+        size="large" color="#4834DF"
+      />
+    </View>
+    )
   }
 
   return (

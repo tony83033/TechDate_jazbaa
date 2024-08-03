@@ -22,10 +22,12 @@ const index = () => {
     const { userInfo, setUserInfo } = useCustomFunction();
   
   const [localUser,setLocalUser] = useState<boolean>(false)
+  const [isLoading,setIsLoading] = useState<boolean>(false)
   const checkLocalUser = async () => {
-  
+    setIsLoading(true);
     try {
       const userJSON = await AsyncStorage.getItem('@user');
+
       if(userJSON!==null){
         const userData = userJSON ? JSON.parse(userJSON) : null;
       console.log("Local storage", userData);
@@ -36,13 +38,22 @@ const index = () => {
     } catch (e: any) {
       alert(e.message);
     } finally {
-    //  setLoading(false);
+     setIsLoading(false);
     }
   };
 
   useEffect(() => {
     checkLocalUser();
   }, []);
+  if(isLoading){
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", zIndex: 20 }}>
+      <ActivityIndicator
+        size="large" color="#4834DF"
+      />
+    </View>
+    )
+  }
 
     return (
         <SafeAreaView>
