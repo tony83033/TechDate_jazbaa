@@ -12,6 +12,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import { useCustomFunction } from '@/app/context/techDateContext';
+import { getDatabase, ref, onValue } from "firebase/database";
 const skills = ["MERN App", "Docker", "React Native", "AWS", "Azure", "Kubernetes"];
 const interests = ["Coding", "Problem Solving", "Technology", "Innovation", "Web Development"];
 
@@ -144,21 +145,30 @@ const Section = ({ title, children, onAddPress }:any) => (
 
 const SkillsList = ({ skills }:any) => (
   <View style={styles.skillsList}>
-    {skills.map((skill:any, index:any) => (
+  {skills.length > 0 ? (
+    skills.map((skill:any, index:any) => (
       <View key={index} style={styles.skillItem}>
         <Text style={styles.skillText}>{skill}</Text>
       </View>
-    ))}
-  </View>
+    ))
+  ) : (
+    <Text>No skills added yet</Text>
+  )}
+</View>
 );
 
 const InterestsList = ({ interests }:any) => (
   <View style={styles.interestsList}>
-    {interests.map((interest:any, index:any) => (
-      <View key={index} style={styles.interestItem}>
-        <Text style={styles.interestText}>{interest}</Text>
-      </View>
-    ))}
+    {interests.length >0 ? (
+      interests.map((interest:any, index:any) => (
+        <View key={index} style={styles.interestItem}>
+          <Text style={styles.interestText}>{interest}</Text>
+        </View>
+      ))
+    ):(
+      <Text>No interests added yet</Text>
+    )}
+    
   </View>
 );
 
@@ -172,16 +182,57 @@ const Profile = () => {
   const [profileModal,setProfileModal] = useState<boolean>(false)
   const [profileUri,setProfileUri] = useState<any>('')
 
+  const [skills, setSkills] = useState<any>([]);
+  const [interests, setInterests] = useState<any>([]);
+
 
   useEffect(() => {
     getCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (userInfo) {
+      fetchSkills();
+      fetchInterests();
+    }
+  }, [userInfo]);
+
+  const fetchSkills = () => {
+    const db = getDatabase();
+    const skillsRef = ref(db, 'UsersProfile/' + userInfo.uid + '/skills');
+    
+    onValue(skillsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const skillsArray = Object.values(data);
+        setSkills(skillsArray);
+      } else {
+        setSkills([]);
+      }
+    });
+  };
+
+  const fetchInterests = () => {
+    const db = getDatabase();
+    const skillsRef = ref(db, 'UsersProfile/' + userInfo.uid + '/interests');
+    
+    onValue(skillsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const interestsArray = Object.values(data);
+        setInterests(interestsArray);
+      } else {
+        setInterests([]);
+      }
+    });
+  };
 
   const getCurrentUser = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
       setUserInfo(user);
+      console.log("Profile",user);
     } else {
       console.log("Not logged in");
     }
