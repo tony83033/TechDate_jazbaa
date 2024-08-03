@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Dimensions ,To
 import { useLocalSearchParams } from 'expo-router';
 import { getDatabase, ref, get } from 'firebase/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Link,router } from 'expo-router';
 const OtherUserProfile = () => {
   const { id } = useLocalSearchParams();
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -11,6 +12,11 @@ const OtherUserProfile = () => {
     fetchUserInfo();
   }, []);
 
+  const goToChat = ()=>{
+    router.push({
+        pathname:"/chat"
+    })
+}
   const fetchUserInfo = async () => {
     const userDb = getDatabase();
     const userInfoRef = ref(userDb, 'UsersProfile');
@@ -103,7 +109,7 @@ const OtherUserProfile = () => {
               {/* =========================== */}
 
               {/* <Text style={styles.userId}>User ID: {userInfo.userId}</Text> */}
-              <TouchableOpacity onPress={()=>{alert("Under Development")}}><Ionicons name="chatbubble-ellipses" size={30} color="black" /></TouchableOpacity>
+              <TouchableOpacity onPress={()=>{goToChat()}}><Ionicons name="chatbubble-ellipses" size={30} color="black" /></TouchableOpacity>
               
               
             </View>

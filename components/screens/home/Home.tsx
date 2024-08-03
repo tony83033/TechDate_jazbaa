@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity, Animated,Dimensions } from 'react-native';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCustomFunction } from "../../../app/context/techDateContext";
@@ -66,7 +66,7 @@ const ActionButton = ({ icon, count, onPress }:any) => {
   );
 };
 
-const PostItem = ({ item }:any) => (
+const PostItem = ({ item }: any) => (
   <View style={styles.postContainer}>
     <View style={styles.postHeader}>
       <TouchableOpacity onPress={() => router.push(`/otherUserProfile/${item.userId}`)}>
@@ -98,15 +98,20 @@ const PostItem = ({ item }:any) => (
           count={item.likes}
           onPress={() => console.log('Like pressed')}
         />
-        <ActionButton 
-          icon={<FontAwesome name="comment-o" size={24} color={colors.primary}  />}
-          count={item.comments}
-          onPress={() => console.log('Comment pressed')}
-        />
+       
         <ActionButton 
           icon={<FontAwesome name="handshake-o" size={24} color={colors.primary} />}
           onPress={() => console.log('Handshake pressed')}
         />
+         <ActionButton 
+          icon={<FontAwesome name="comment-o" size={24} color={colors.primary} />}
+          count={item.comments}
+          onPress={() => console.log('Comment pressed')}
+        />
+      </View>
+      <View style={styles.countsContainer}>
+        <Text style={styles.countText}>{item.likeCount} likes</Text>
+        <Text style={styles.countText}>{item.commentCount} comments</Text>
       </View>
     </View>
   </View>
@@ -142,22 +147,28 @@ const InstagramFeed = () => {
 const styles = StyleSheet.create({
   container: {
  //   flex: 1,
-    backgroundColor: colors.background,
+    //backgroundColor: colors.background,
     //paddingTop: 10,
+    backgroundColor: '#e6e6fa',
+    height:Dimensions.get("window").height
   },
+  
   feedContent: {
     paddingBottom: spacing.xl,
   },
   postContainer: {
     backgroundColor: colors.white,
-    marginBottom: spacing.md,
+    marginHorizontal: spacing.md,  // Add horizontal margin
+    marginVertical: spacing.sm,    // Add vertical margin
     borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    padding: spacing.sm,  // Add padding on all sides
   },
+  
   postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,6 +208,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: spacing.sm,  // Add some space between actions and counts
   },
   actionButton: {
     flexDirection: 'row',
@@ -206,6 +218,15 @@ const styles = StyleSheet.create({
     ...typography.caption,
     marginLeft: spacing.xs,
   },
+  countsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  countText: {
+    ...typography.caption,
+    color: colors.lightText,
+  },
+ 
 });
 
 export default InstagramFeed;

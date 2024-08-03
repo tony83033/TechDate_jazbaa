@@ -45,8 +45,12 @@ const TabLayout = () => {
             )
             }}/>
                 <Tabs.Screen name="PostDetails/[id]" options={
+                    
         {
-            href:null
+
+            href:null,
+            title:"Post Details",
+            headerTitleAlign: 'center',
             }}/>
             <Tabs.Screen name="chat/index" options={
         {
