@@ -10,14 +10,13 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const HomeHeader = () => {
     const goToPost = ()=>{
-        router.push({
-            pathname:"/Upload"
-        })
+        router.push("/Upload"
+        )
     }
     const goToChat = ()=>{
-        router.push({
-            pathname:"/chat"
-        })
+        router.push(
+            "/chat"
+        )
     }
   return (
     <View style={styles.header}>

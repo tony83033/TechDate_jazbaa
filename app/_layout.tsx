@@ -40,40 +40,23 @@ const _layout = () => {
 
   return (
     <FirebaseProvider>
-    {/* <FirebaseAuthProvider> */}
-  <Stack>
-    {/* <Stack.Screen name="index" options={
-        {
-            headerShown: false
-        }
-    } />
-  
-    <Stack.Screen name="leaderboard" options={{
-                  headerShown: false
-    }
-    } />
 
-<Stack.Screen name="chat" options={{
-                  headerShown: false
-    }
-    } />
-    <Stack.Screen name="home" options={{
-                  headerShown: false
-    }
-    } /> */}
-    {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
-    {/* <Stack.Screen name="rigister/index" options={{title:"Register"}} /> */}
-    <Stack.Screen name="rigister/index" options={{
-      //title:"Register"
-        headerShown: false
-      }} />
+  <Stack>
+    
+
+
+    
     <Stack.Screen  name="(tabs)" options={{
       headerShown: false
     }}/>
-    
+    <Stack.Screen  name="(auth)" options={{
+      
+      //title:"Register"
+        headerShown: false
+      }} />
        
   </Stack>
-  {/* </FirebaseAuthProvider> */}
+
   </FirebaseProvider>
   )
 }

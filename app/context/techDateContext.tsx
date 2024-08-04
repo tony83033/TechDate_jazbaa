@@ -4,7 +4,8 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { db, auth } from '@/firebaseConfig';
 import { push, set, ref as dbRef, onValue,update, child,get,getDatabase } from 'firebase/database';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { onAuthStateChanged } from "firebase/auth";
 interface FirebaseContextType {
   UploadPost: ({ title, desc, imageurl }: { title: string; desc: string; imageurl: string }) => void;
   FetchPosts: () => void;
@@ -15,6 +16,10 @@ interface FirebaseContextType {
   addSkillInDb: ({newSkill}:{newSkill:any}) => void;
   addInterestINDb: ({newInterest}:{newInterest:any}) => void;
   editBio: ({newBio}:{newBio:any}) => void;
+  getUniqueId: () => string;
+  user: any;
+  loading: boolean;
+  setUser: any;
 }
 
 const firebaseContext = createContext<FirebaseContextType | null>(null);
@@ -99,6 +104,12 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
       alert("Something went wrong, please restart the app 2"+ error);
     }
   };
+
+  const getUniqueId = () => {
+    const id = uuidv4();
+   return id.toString();
+
+  }
 
   const FetchPosts = () => {
     const postsRef = dbRef(db, 'posts');
@@ -320,8 +331,44 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
 }
   
   }
+
+
+
+  // =====================================================================Auth context===================
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<any>(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const userJSON = await AsyncStorage.getItem('@user');
+        if (userJSON) {
+          setUser(JSON.parse(userJSON));
+        }
+      } catch (error) {
+        console.error("Error checking user:", error);
+      }
+
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          console.log("user is loged in")
+          await AsyncStorage.setItem('@user', JSON.stringify(firebaseUser));
+        } else {
+          setUser(null);
+          console.log("user is not logged in");
+          await AsyncStorage.removeItem('@user');
+        }
+        setLoading(false);
+      });
+
+      return unsubscribe;
+    };
+
+    checkUser();
+  },[] );
   return (
-    <firebaseContext.Provider value={{ UploadPost, FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb,editBio }}>
+    <firebaseContext.Provider value={{ UploadPost,FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb,editBio,getUniqueId,user, setUser, loading }}>
       {children}
     </firebaseContext.Provider>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Dimensions ,TouchableOpacity} from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Dimensions ,TouchableOpacity,ActivityIndicator} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { getDatabase, ref, get } from 'firebase/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,12 +10,10 @@ const OtherUserProfile = () => {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
+  }, [id]);
 
   const goToChat = ()=>{
-    router.push({
-        pathname:"/chat"
-    })
+    router.push("/chat")
 }
   const fetchUserInfo = async () => {
     const userDb = getDatabase();
@@ -131,7 +129,11 @@ const OtherUserProfile = () => {
             </Section> */}
           </>
         ) : (
-          <Text>Loading user information...</Text>
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", zIndex: 20 }}>
+          <ActivityIndicator
+            size="large" color="#4834DF"
+          />
+        </View>
         )}
       </ScrollView>
     </SafeAreaView>

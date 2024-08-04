@@ -19,48 +19,21 @@ WebBrowser.maybeCompleteAuthSession();
 
 const index = () => {
 
-    const { userInfo, setUserInfo } = useCustomFunction();
-  
-  const [localUser,setLocalUser] = useState<boolean>(false)
-  const [isLoading,setIsLoading] = useState<boolean>(false)
-  const checkLocalUser = async () => {
-    setIsLoading(true);
-    try {
-      const userJSON = await AsyncStorage.getItem('@user');
+  const { user, loading } = useCustomFunction();
 
-      if(userJSON!==null){
-        const userData = userJSON ? JSON.parse(userJSON) : null;
-      console.log("Local storage", userData);
-      //setUserInfo(userData);
-      setLocalUser(true)
-      }
-      
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-     setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    checkLocalUser();
-  }, []);
-  if(isLoading){
+  if (loading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", zIndex: 20 }}>
-      <ActivityIndicator
-        size="large" color="#4834DF"
-      />
-    </View>
-    )
+        <ActivityIndicator size="large" color="#4834DF" />
+      </View>
+    );
   }
 
-    return (
-        <SafeAreaView>
-            {userInfo? <HomeScreen /> : <Redirect href="/rigister" />}
-        </SafeAreaView>
-    )
-
+  return (
+    <SafeAreaView>
+      {user ? <HomeScreen /> : <Redirect href="/(auth)" />}
+    </SafeAreaView>
+  );
 }
 
 export default index
