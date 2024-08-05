@@ -67,7 +67,7 @@ const TabLayout = () => {
            headerTitleAlign: 'center',
             href:null
             }}/>
-            <Tabs.Screen name="chatpage/index" options={
+            <Tabs.Screen name="chatpage/[id]" options={
 
 {
    // headerShown:false,
