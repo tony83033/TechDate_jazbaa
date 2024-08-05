@@ -51,7 +51,7 @@ const _layout = () => {
     }}/>
     <Stack.Screen  name="(auth)" options={{
       
-      //title:"Register"
+      
         headerShown: false
       }} />
        

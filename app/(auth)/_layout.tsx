@@ -13,11 +13,9 @@ export default function _layout() {
           <FirebaseProvider>
         <Stack.Screen 
           // component={Rigister}
-          name="index"
-          
-          options={{
-           headerShown: false
-          }} 
+         name="techdate"
+         options={{headerShown:false}}
+      
         />
         </FirebaseProvider>
       </Stack>

@@ -79,8 +79,18 @@ const Frame = ({promptAsync}:any) => {
         contentFit="cover"
         source={require("../../assets/git-1.png")}
       />
-      <Text style={styles.techDate}>{`TECH
-DATE`}</Text>
+      {/* <Text style={styles.techDate}>
+        
+      {`TECH
+DATE`}
+
+</Text> */}
+
+<Image
+          style={styles.techDate}
+          contentFit="cover"
+          source={require("../../assets/logo.png")}
+        />
       <View style={[styles.homeIndicator, styles.homeLayout]}>
         <View style={[styles.homeIndicatorChild, styles.homeLayout]} />
         <View style={[styles.homeIndicator1, styles.capacityBg]} />
@@ -99,6 +109,29 @@ DATE`}</Text>
 const styles = StyleSheet.create({
   textFlexBox: {
     alignItems: "center",
+    position: "absolute",
+  },
+  profileImage: {
+    
+    
+    justifyContent: "center",
+    top: 0,
+    alignItems: "center",
+    position: "absolute",
+  },
+
+  techDate: {
+    top: 200,
+    left: 147,
+    width: 100,
+    height: 100,
+    borderRadius: 60,
+    marginBottom: 10,
+    
+    lineHeight: 42,
+    // fontFamily: // fontFamily.baumansRegular,
+   // color: Color.textPrimary100000000,
+    //textAlign: "left",
     position: "absolute",
   },
   buttonLayout: {
@@ -258,16 +291,7 @@ const styles = StyleSheet.create({
     top: 295,
     left: 307,
   },
-  techDate: {
-    top: 212,
-    left: 151,
-    fontSize: FontSize.size_13xl,
-    lineHeight: 42,
-    // fontFamily: // fontFamily.baumansRegular,
-    color: Color.textPrimary100000000,
-    textAlign: "left",
-    position: "absolute",
-  },
+ 
   homeIndicatorChild: {
     top: 0,
   },

@@ -65,6 +65,7 @@ const TabLayout = () => {
            // headerShown:false,
            title:"Profile",
            headerTitleAlign: 'center',
+           headerShown:false,
             href:null
             }}/>
             <Tabs.Screen name="chatpage/[id]" options={
