@@ -56,7 +56,8 @@ const TabLayout = () => {
             }}/>
             <Tabs.Screen name="chat/index" options={
         {
-            href:null
+            href:null,
+            headerShown:false,
             }}/>
 
 <Tabs.Screen name="otherUserProfile/[id]" options={

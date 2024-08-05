@@ -5,6 +5,7 @@ import { auth } from '../../../firebaseConfig';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ChatData {
@@ -146,9 +147,9 @@ const HomeScreen: React.FC<HomeScreenProps> = () => {
 export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: '#FFFFFF',
-    
+    minHeight: Dimensions.get("window").height,
   },
  
   loadingContainer: {

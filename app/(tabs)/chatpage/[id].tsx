@@ -136,8 +136,8 @@ const Chat: React.FC<ChatProps> = () => {
         }
       });
 
-      setMessages(previousMessages => deduplicateMessages(GiftedChat.append(previousMessages, messages)));
-      updateProcessedMessageIds(messages);
+      // setMessages(previousMessages => deduplicateMessages(GiftedChat.append(previousMessages, messages)));
+      // updateProcessedMessageIds(messages);
 
       const readRef = doc(database, `chats/${chatId}/readStatus/${currentUser.uid}`);
       await setDoc(readRef, { lastRead: serverTimestamp() });
