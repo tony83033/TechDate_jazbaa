@@ -4,9 +4,20 @@ import { Href, useLocalSearchParams } from 'expo-router';
 import { getDatabase, ref, get } from 'firebase/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link,router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+
 const OtherUserProfile = () => {
   const { id } = useLocalSearchParams();
   const [userInfo, setUserInfo] = useState<any>(null);
+  
+  
+  const [isCrush, setIsCrush] = useState(false);
+
+  const toggleCrush = () => {
+    setIsCrush(!isCrush);
+    // Add logic to save crush status to backend
+  };
+
 
   useEffect(() => {
     fetchUserInfo();
@@ -48,104 +59,91 @@ const OtherUserProfile = () => {
 
   // Helper components (Section, SkillsList, InterestsList) remain the same
 
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+
+  const ProfileHeader = ({ user }:any) => (
+    <View style={styles.profileHeader}>
+      <Image
+        style={styles.profileImage}
+        source={user.imageUrl ? { uri: user.imageUrl } : require("../../../assets/userIcon.png")}
+      />
+      <LinearGradient
+        colors={['transparent', 'rgba(0,0,0,0.7)']}
+        style={styles.gradient}
+      />
+      <View style={styles.profileInfo}>
+        <Text style={styles.userName}>{user.username || "User"}</Text>
+        <Text style={styles.userBio}>{user.bio || "No bio available"}</Text>
+      </View>
+    </View>
+  );
+
+  const ActionButtons = () => (
+    <View style={styles.actionButtons}>
+      <TouchableOpacity style={styles.crushButton} onPress={toggleCrush}>
+        <Ionicons name={isCrush ? "heart" : "heart-outline"} size={24} color="#FFFFFF" />
+        <Text style={styles.buttonText}>{isCrush ? "Crushed" : "Mark as Crush"}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.chatButton} onPress={goToChat}>
+        <Ionicons name="chatbubble-ellipses" size={24} color="#FFFFFF" />
+        <Text style={styles.buttonText}>Chat</Text>
+      </TouchableOpacity>
+    </View>
+  );
+  const Section = ({ title, children }:any) => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {children}
     </View>
   );
-  
-  const SkillsList = ({ skills }: { skills: string[] }) => (
-    <View style={styles.skillsList}>
+  const SkillsList = ({ skills }:any) => (
+    <View style={styles.listContainer}>
       {skills && skills.length > 0 ? (
-        skills.map((skill, index) => (
-          <View key={index} style={styles.skillItem}>
-            <Text style={styles.skillText}>{skill}</Text>
+        skills.map((skill:any, index:any) => (
+          <View key={index} style={styles.listItem}>
+            <Text style={styles.listItemText}>{skill}</Text>
           </View>
         ))
       ) : (
-        <Text>No skills added yet</Text>
+        <Text style={styles.emptyText}>No skills added yet</Text>
       )}
     </View>
   );
   
-  const InterestsList = ({ interests }: { interests: string[] }) => (
-    <View style={styles.interestsList}>
+  const InterestsList = ({ interests }:any) => (
+    <View style={styles.listContainer}>
       {interests && interests.length > 0 ? (
-        interests.map((interest, index) => (
-          <View key={index} style={styles.interestItem}>
-            <Text style={styles.interestText}>{interest}</Text>
+        interests.map((interest:any, index:any) => (
+          <View key={index} style={styles.listItem}>
+            <Text style={styles.listItemText}>{interest}</Text>
           </View>
         ))
       ) : (
-        <Text>No interests added yet</Text>
+        <Text style={styles.emptyText}>No interests added yet</Text>
       )}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {userInfo ? (
-          <>
-            <View style={styles.profileHeader}>
-              <Image
-                style={styles.profileImage}
-                source={userInfo.imageUrl ? { uri: userInfo.imageUrl } : require("../../../assets/userIcon.png")}
-              />
-              <Text style={styles.userName}>{userInfo.username || "User"}</Text>
-              
-
-              {/* <Text style={styles.userBio}>{userInfo.bio || "No bio available"}</Text> */}
-
-
-              {/* ========================= */}
-
-              <View style={styles.skillsList}>
-
-      
-          <View  style={styles.skillItem}>
-            <Text style={styles.skillText}>{userInfo.bio}</Text>
-          </View>
-      
-      
-       {/* <Text>No skills added yet</Text> */}
-      
-    </View>
-
-              {/* =========================== */}
-
-              {/* <Text style={styles.userId}>User ID: {userInfo.userId}</Text> */}
-              <TouchableOpacity onPress={()=>{goToChat()}}><Ionicons name="chatbubble-ellipses" size={30} color="black" /></TouchableOpacity>
-              
-              
-            </View>
-            <Section title="Skills">
-              <SkillsList skills={userInfo.skills || []} />
-            </Section>
-            <Section title="Interests">
-              <InterestsList interests={userInfo.interests || []} />
-            </Section>
-            {/* <Section title="Additional Info">
-              <Text>Email: {userInfo.email}</Text>
-              <Text>Age: {userInfo.age || "Not specified"}</Text>
-              <Text>Location: {userInfo.userLocation || "Not specified"}</Text>
-              <Text>Rating: {userInfo.rating}</Text>
-              <Text>Created At: {new Date(userInfo.createdAt).toLocaleDateString()}</Text>
-              {userInfo.updatedAt && (
-                <Text>Last Updated: {new Date(userInfo.updatedAt).toLocaleDateString()}</Text>
-              )}
-            </Section> */}
-          </>
-        ) : (
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", zIndex: 20 }}>
-          <ActivityIndicator
-            size="large" color="#4834DF"
-          />
+    <ScrollView>
+      {userInfo ? (
+        <>
+          <ProfileHeader user={userInfo} />
+          <ActionButtons />
+          <Section title="Skills">
+            <SkillsList skills={userInfo.skills || []} />
+          </Section>
+          <Section title="Interests">
+            <InterestsList interests={userInfo.interests || []} />
+          </Section>
+        </>
+      ) : (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4834DF" />
         </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+      )}
+    </ScrollView>
+  </SafeAreaView>
   );
 };
 
@@ -153,73 +151,102 @@ const OtherUserProfile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6e6fa",
-    padding: 20,
+    backgroundColor: "#FFFFFF",
   },
   profileHeader: {
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#e6e6fa",
+    height: 300,
+    justifyContent: 'flex-end',
   },
   profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 10,
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '50%',
+  },
+  profileInfo: {
+    padding: 20,
   },
   userName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 5,
   },
   userBio: {
     fontSize: 16,
-    color: "#666",
+    color: "#FFFFFF",
     marginBottom: 15,
-    textAlign: 'center',
   },
-  userId: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 10,
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+    backgroundColor: '#e6e6fa',
+  },
+  crushButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF6B6B',
+    padding: 10,
+    borderRadius: 20,
+    flex: 1,
+    marginRight: 10,
+    justifyContent: 'center',
+  },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4834DF',
+    padding: 10,
+    borderRadius: 20,
+    flex: 1,
+    marginLeft: 10,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    marginLeft: 5,
+    fontWeight: 'bold',
   },
   section: {
     margin: 20,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 15,
+    color: '#333333',
   },
-  skillsList: {
+  listContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  skillItem: {
-    backgroundColor: "white",
+  listItem: {
+    backgroundColor: "#e6e6fa",
     borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     margin: 5,
   },
-  skillText: {
-    color: "black",
+  listItemText: {
+    color: "#333333",
     fontSize: 14,
   },
-  interestsList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  emptyText: {
+    color: '#999999',
+    fontStyle: 'italic',
   },
-  interestItem: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    margin: 5,
-  },
-  interestText: {
-    color: "black",
-    fontSize: 14,
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 300,
   },
 });
 

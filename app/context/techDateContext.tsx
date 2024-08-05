@@ -2,10 +2,11 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import { db, auth } from '@/firebaseConfig';
+import { db, auth} from '@/firebaseConfig';
 import { push, set, ref as dbRef, onValue,update, child,get,getDatabase } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
+import { increment } from "firebase/firestore";
 interface FirebaseContextType {
   UploadPost: ({ title, desc, imageurl }: { title: string; desc: string; imageurl: string }) => void;
   FetchPosts: () => void;
@@ -20,6 +21,7 @@ interface FirebaseContextType {
   user: any;
   loading: boolean;
   setUser: any;
+  toggleLike: (postId: string) => void;
 }
 
 const firebaseContext = createContext<FirebaseContextType | null>(null);
@@ -53,57 +55,67 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
     return () => unsubscribe();
   }, []);
 
-  const UploadPost = async ({ title, desc, imageurl }: { title: string; desc: string; imageurl: string }) => {
-    try {
-      console.log(title, desc, imageurl);
-      const ImageName = imageurl.substring(imageurl.lastIndexOf('/') + 1);
-      const mountainsRef = ref(storage, `postImages/${ImageName + uuidv4()}`);
-      const response = await fetch(imageurl);
-      const blob = await response.blob();
-      const snapsort = await uploadBytes(mountainsRef, blob);
-      const downloadURL = await getDownloadURL(mountainsRef);
-      console.log(downloadURL);
+  
+const UploadPost = async ({ title, desc, imageurl }: { title: string; desc: string; imageurl: string }) => {
+  try {
+    console.log(title, desc, imageurl);
 
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error('No user is currently logged in');
-      }
-
-      try {
-        //get curent user Profile photo
-        
-        const imagedb = getDatabase();
-        const imageUrlRef =  dbRef(imagedb, `UsersProfile/${currentUser.uid}/imageUrl`);
     
-        const snapshot = await get(imageUrlRef);
-        const userProfileImageurl = await snapshot.val();
-        console.log(userProfileImageurl);
-        // sage in db
-        const newPostRef = push(dbRef(db, 'posts'));
-        await set(newPostRef, {
-          title,
-          desc,
-          imageUrl: downloadURL,
-          userProfileImageUrl: userProfileImageurl,
-          userName: currentUser?.displayName || '', 
-          likeCount: 0,
-          commentCount: 0,
-          postId: newPostRef.key,
-          userId: currentUser.uid,
-          createdAt: new Date().toISOString(),
-        });
+    const ImageName = imageurl.substring(imageurl.lastIndexOf('/') + 1);
+    const mountainsRef = ref(storage, `postImages/${ImageName + uuidv4()}`);
+    const response = await fetch(imageurl);
+    const blob = await response.blob();
+    const snapsort = await uploadBytes(mountainsRef, blob);
+    const downloadURL = await getDownloadURL(mountainsRef);
+    console.log(downloadURL);
 
-        console.log('Post uploaded successfully:', downloadURL);
-        alert("Post uploaded successfully");
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('No user is currently logged in');
+    }
 
-      } catch (error) {
-        alert("Something went wrong, please restart the app 1" + error);
-      }
+    try {
+      // Get current user Profile photo
+      const imagedb = getDatabase();
+      const imageUrlRef = dbRef(imagedb, `UsersProfile/${currentUser.uid}/imageUrl`);
+    
+      const snapshot = await get(imageUrlRef);
+      const userProfileImageurl = await snapshot.val();
+      console.log(userProfileImageurl);
+
+      // Save in db
+      const newPostRef = push(dbRef(db, 'posts'));
+      const timestamp = Date.now();
+      
+      await set(newPostRef, {
+        title,
+        desc,
+        imageUrl: downloadURL,
+        userProfileImageUrl: userProfileImageurl,
+        userName: currentUser?.displayName || '', 
+        likes: {},  // Initialize an empty likes object
+        likeCount: 0,  // Initialize likeCount to 0
+        commentCount: 0,  // Initialize commentCount to 0
+        lastCommentTimestamp: null,  // Initialize lastCommentTimestamp
+        postId: newPostRef.key,
+        userId: currentUser.uid,
+        createdAt: timestamp,
+      });
+
+      // Initialize an empty comments node for this post
+      await set(dbRef(db, `comments/${newPostRef.key}`), {});
+
+      console.log('Post uploaded successfully:', downloadURL);
+      alert("Post uploaded successfully");
 
     } catch (error) {
-      alert("Something went wrong, please restart the app 2"+ error);
+      alert("Something went wrong, please restart the app 1" + error);
     }
-  };
+
+  } catch (error) {
+    alert("Something went wrong, please restart the app 2" + error);
+  }
+};
 
   const getUniqueId = () => {
     const id = uuidv4();
@@ -116,10 +128,68 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
     onValue(postsRef, (snapshot: any) => {
       const data = snapshot.val();
       if (data) {
-        const postsArray = Object.values(data);
-        setPosts(postsArray);
+        // const postsArray = Object.entries(data).map(([key, value]: [string, any]) => ({
+        //   ...value,
+        //   postId: key,
+        // }));
+        // const postsArray = Object.values(data);
+
+        const formattedPosts = Object.entries(data || {}).map(([key, value]: [string, any]) => ({
+          postId: key,
+          ...value,
+          likeCount: typeof value.likeCount === 'object' ? (value.likeCount.xu || 0) : (typeof value.likeCount === 'number' ? value.likeCount : 0),
+          commentCount: value.commentCount || 0,
+        }));
+        setPosts(formattedPosts);
       }
     });
+  };
+  
+
+
+  const toggleLike = async (postId: string) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      console.error('No user logged in');
+      return;
+    }
+  
+    const postRef = dbRef(db, `posts/${postId}`);
+    const userLikeRef = dbRef(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const likeCountRef = dbRef(db, `posts/${postId}/likeCount`);
+  
+    try {
+      // Get the current like status and likeCount
+      const [userLikeSnapshot, likeCountSnapshot] = await Promise.all([
+        get(userLikeRef),
+        get(likeCountRef)
+      ]);
+      
+      const userLiked = userLikeSnapshot.val();
+      const currentLikeCount = likeCountSnapshot.val()?.xu || 0;
+  
+      if (userLiked) {
+        // User already liked, so unlike
+        await update(postRef, {
+          [`likes/${currentUser.uid}`]: null,
+          likeCount: {
+            _methodName: "increment",
+            xu: Math.max(0, currentLikeCount - 1) // Ensure it doesn't go below 0
+          }
+        });
+      } else {
+        // User hasn't liked, so add like
+        await update(postRef, {
+          [`likes/${currentUser.uid}`]: true,
+          likeCount: {
+            _methodName: "increment",
+            xu: currentLikeCount + 1 
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
   };
 
   const UploadProfilePhoto = async ({ imageurl }: { imageurl: any }) => {
@@ -368,7 +438,7 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
     checkUser();
   },[] );
   return (
-    <firebaseContext.Provider value={{ UploadPost,FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb,editBio,getUniqueId,user, setUser, loading }}>
+    <firebaseContext.Provider value={{ UploadPost,FetchPosts, posts, userInfo, setUserInfo,UploadProfilePhoto,addSkillInDb,addInterestINDb,editBio,getUniqueId,user, setUser, loading,toggleLike }}>
       {children}
     </firebaseContext.Provider>
   );
