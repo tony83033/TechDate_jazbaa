@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, Dimensions ,TouchableOpacity,ActivityIndicator} from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Href, useLocalSearchParams } from 'expo-router';
 import { getDatabase, ref, get } from 'firebase/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link,router } from 'expo-router';
@@ -12,8 +12,17 @@ const OtherUserProfile = () => {
     fetchUserInfo();
   }, [id]);
 
+
+  // pathname: "/PostDetails/[id]",
+  //       params: { id: item.postId },
   const goToChat = ()=>{
-    router.push("/chat")
+    router.push({
+      pathname:"/chatpage/[id]",
+      params:{
+        id:id
+      }
+    })
+
 }
   const fetchUserInfo = async () => {
     const userDb = getDatabase();

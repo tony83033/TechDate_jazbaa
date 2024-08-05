@@ -6,8 +6,10 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ProfileIcon  from '../../components/screens/profile/ProfileIcon'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { ChatProvider } from '../context/ChatContext';
 const TabLayout = () => {
   return (
+    <ChatProvider>
 <Tabs>
     <Tabs.Screen name="index" options={{
       //  title:"Home",
@@ -65,7 +67,17 @@ const TabLayout = () => {
            headerTitleAlign: 'center',
             href:null
             }}/>
+            <Tabs.Screen name="chatpage/index" options={
+
+{
+   // headerShown:false,
+   title:"chatpage",
+   headerTitleAlign: 'center',
+   
+    href:null
+    }}/>
 </Tabs>
+</ChatProvider>
   )
 }
 
